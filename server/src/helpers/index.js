@@ -1,5 +1,5 @@
 const rp = require('request-promise');
-const access_key = '808d073d26c2889ffb9ad4ce1b695a9b';
+const access_key = '05065217a91b8743c139f4cae2b3cb75';
 
 class Helpers {
 

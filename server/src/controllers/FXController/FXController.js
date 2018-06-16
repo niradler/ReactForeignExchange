@@ -125,20 +125,34 @@ class FXController {
     }
 
     async getTableData(req, res) {
-       const table = await this._getTableData();
+        try {
+            const table = await this._getTableData();
 
-       return res
-            .status(200)
-            .json({...table});
+            return res
+                 .status(200)
+                 .json({...table});
+        } catch (error) {
+            return res
+                 .status(500)
+                 .json({});
+        }
+
     }
 
     async getAggregatedTableData(req, res) {
-        const table = await this._getTableData();
-        const aggregatedTable = this._getAggregatedCalculatedValueTable(table);
+        try {
+            const table = await this._getTableData();
+            const aggregatedTable = this._getAggregatedCalculatedValueTable(table);
+    
+            return res
+                 .status(200)
+                 .json({...aggregatedTable});
+        } catch (error) {
+            return res
+                 .status(500)
+                 .json({err:error});
+        }
 
-        return res
-             .status(200)
-             .json({...aggregatedTable});
     }
 
     async currencyConvert(req, res) {

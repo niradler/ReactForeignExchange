@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import server from './server'
-import logo from './logo.svg';
 import './App.css';
 import Table from "./components/Table";
 import CurrencyConverter from "./components/CurrencyConverter";
@@ -44,7 +43,7 @@ class App extends Component {
       this
         .getUpdatedData()
         .then((done) => {})
-    }, 10000);
+    }, 1000000);
   }
 
   render() {
@@ -102,7 +101,7 @@ class App extends Component {
               </div>
               <div className="columns">
                 <div className="column is-12">
-                  <CurrencyConverter/>
+                  {this.state.supportedCurrencies ? <CurrencyConverter supportedCurrencies={this.state.supportedCurrencies}/> : ''}                  
                 </div>
               </div>
             </div>
