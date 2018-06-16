@@ -43,7 +43,7 @@ class App extends Component {
       this
         .getUpdatedData()
         .then((done) => {})
-    }, 1000000);
+    }, 10000);
   }
 
   render() {
