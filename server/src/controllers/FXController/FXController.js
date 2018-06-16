@@ -7,6 +7,9 @@ class FXController {
         this.getTableData = this
             .getTableData
             .bind(this);
+            this.getAggregatedTableData = this
+            .getAggregatedTableData
+            .bind(this);
     }
 
     _getFinUnitsWithPositions() {
@@ -66,10 +69,10 @@ class FXController {
 
     }
 
-    async getTableData(req, res) {
+    async _getTableData() {
         let finUnitsWithPositions = this._getFinUnitsWithPositions();
 
-         finUnitsWithPositions = this._mergeByCurrencyAndId(finUnitsWithPositions);
+        finUnitsWithPositions = this._mergeByCurrencyAndId(finUnitsWithPositions);
         finUnitsWithPositions = await this._setCurrencyRateUSD(finUnitsWithPositions);
         
         const table = {
@@ -78,6 +81,7 @@ class FXController {
             ],
             columns: finUnitsWithPositions.map((col) => {
                 return {
+                    id: col[0].id,
                     financialUnitName: col[0].name,
                     nationalValue: col.position.data.currency.notionalValue.toFixed(4),
                     rate: (1 / col.position.data.currency.rate).toFixed(4),
@@ -87,9 +91,88 @@ class FXController {
             })
         }
 
-        res
+        return table;
+    }
+
+    _getAggregatedCalculatedValueTable(table) {
+        const columns = [];
+
+        table.columns.forEach(finUnit => {
+            let index = 0;
+            const isNew = columns.filter((_finUnit,i) => {
+                if (finUnit.id == _finUnit.id) {
+                    index = i;
+                    return true
+                }
+                
+                 return false;
+            });
+
+            if (isNew.length > 0) {                
+                columns[index].calculatedValue = Number(columns[index].calculatedValue) + Number(finUnit.calculatedValue);            
+            }else{
+                columns.push({
+                    id: finUnit.id,
+                    financialUnitName: finUnit.financialUnitName,
+                    calculatedValue: finUnit.calculatedValue
+                });
+            }
+        });
+
+        table.columns = columns;
+        table.titles = ['Financial Unit Name', 'Calculated Value'];
+
+        return table;
+    }
+
+    async getTableData(req, res) {
+       const table = await this._getTableData();
+
+       return res
             .status(200)
-            .json({table})
+            .json({...table});
+    }
+
+    async getAggregatedTableData(req, res) {
+        const table = await this._getTableData();
+        const aggregatedTable = this._getAggregatedCalculatedValueTable(table);
+
+        return res
+             .status(200)
+             .json({...aggregatedTable});
+    }
+
+    async currencyConvert(req, res) {
+        const {ccy, value} = req.body;
+
+        try {
+            const rateResponse = await helpers.getRateByCCY([ccy]);
+            const rate = 1 / rateResponse.quotes['USD' + ccy];
+            return res
+            .status(200)
+            .json({
+                source: ccy,
+                target: 'USD',
+                value: value,
+                rate,
+                calculatedValue: (value * rate)
+            });
+        } catch (err) {
+            console.log('currencyConvert:', err);
+        }
+    }
+
+    async getSupportedCurrencies(req, res) {
+        try {
+            const rateResponse = await helpers.getSupportedCurrencies();
+            const currencies = Object.keys(rateResponse.currencies);
+
+            return res
+            .status(200)
+            .json(currencies);
+        } catch (err) {
+            console.log('getSupportedCurrencies:', err);
+        }        
     }
 }
 
