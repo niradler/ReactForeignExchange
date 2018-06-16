@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "watch": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "jest"
   },
   "author": "Nir Adler",
   "license": "ISC",
@@ -18,6 +19,7 @@
     "request-promise": "^4.2.2"
   },
   "devDependencies": {
+    "jest": "^23.1.0",
     "nodemon": "^1.14.11"
   }
 }
