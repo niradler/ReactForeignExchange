@@ -1,6 +1,5 @@
 const {finUnits, positions} = require('../../data');
 const helpers = require('../../helpers');
-const _ = require('lodash');
 
 class FXController {
     constructor() {
@@ -148,6 +147,7 @@ class FXController {
         try {
             const rateResponse = await helpers.getRateByCCY([ccy]);
             const rate = 1 / rateResponse.quotes['USD' + ccy];
+
             return res
             .status(200)
             .json({
